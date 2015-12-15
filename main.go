@@ -71,8 +71,15 @@ func processFile(filename string, in io.ReadSeeker, out io.Writer, stdin bool) e
 		return err
 	}
 
-	res := make([]byte, len(page.FrontMatter())+len(md))
-	copy(res, append(page.FrontMatter(), md...))
+	// If we have front matter, insert a newline to separate the front matter
+	// from the markdown content.
+	sep := ""
+	if len(page.FrontMatter()) > 0 {
+		sep = "\n"
+	}
+
+	res := make([]byte, len(page.FrontMatter())+len(sep)+len(md))
+	copy(res, append(append(page.FrontMatter(), []byte(sep)...), md...))
 
 	if !bytes.Equal(src, res) {
 		// formatting has changed
