@@ -3,7 +3,7 @@ mdfmt
 
 Like `gofmt`, but for Markdown with front matter.
 
-`mdfmt` is a fork of [markdownfmt](https://github.com/shurchooL/markdownfmt) that simply adds support for TOML, YAML, and JSON front matter.
+`mdfmt` is a fork of [markdownfmt](https://github.com/shurcooL/markdownfmt) that simply adds support for TOML, YAML, and JSON front matter.
 
 Usage
 -----
@@ -18,7 +18,7 @@ usage: mdfmt [flags] [path ...]
 Acknowledgements
 ----------------
 
--	[markdownfmt](https://github.com/shurchooL/markdownfmt) for the actual markdown formatting.
+-	[markdownfmt](https://github.com/shurcooL/markdownfmt) for the actual markdown formatting.
 -	[Hugo](https://gohugo.io) for front matter parsing.
 -	[Go Authors](https://golang.org) for writing `gofmt`.
 
