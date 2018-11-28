@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/parser"
 	"github.com/shurcooL/markdownfmt/markdown"
-	"github.com/spf13/hugo/parser"
 )
 
 var (
