@@ -13,8 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/parser"
-	"github.com/shurcooL/markdownfmt/markdown"
+	"github.com/moorereason/mdfmt/pkg/parse"
 )
 
 var (
@@ -43,43 +42,11 @@ func isMarkdownFile(f os.FileInfo) bool {
 	return !f.IsDir() && !strings.HasPrefix(name, ".") && (ext == "md" || ext == "markdown")
 }
 
-func processFile(filename string, in io.ReadSeeker, out io.Writer, stdin bool) error {
-	if in == nil {
-		f, err := os.Open(filename)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		in = f
-	}
-
-	// slurp in the whole file for comparison later
-	src, err := ioutil.ReadAll(in)
+func processFile(filename string, in io.ReadSeeker, out io.Writer) error {
+	src, res, err := parse.ParseFile(filename, in)
 	if err != nil {
 		return err
 	}
-	in.Seek(0, 0)
-
-	// parse the file with hugo/parser to extract front matter
-	page, err := parser.ReadFrom(in)
-	if err != nil {
-		return err
-	}
-
-	md, err := markdown.Process(filename, page.Content(), nil)
-	if err != nil {
-		return err
-	}
-
-	// If we have front matter, insert a newline to separate the front matter
-	// from the markdown content.
-	sep := ""
-	if len(page.FrontMatter()) > 0 {
-		sep = "\n"
-	}
-
-	res := make([]byte, len(page.FrontMatter())+len(sep)+len(md))
-	copy(res, append(append(page.FrontMatter(), []byte(sep)...), md...))
 
 	if !bytes.Equal(src, res) {
 		// formatting has changed
@@ -111,7 +78,7 @@ func processFile(filename string, in io.ReadSeeker, out io.Writer, stdin bool) e
 
 func visitFile(path string, f os.FileInfo, err error) error {
 	if err == nil && isMarkdownFile(f) {
-		err = processFile(path, nil, os.Stdout, false)
+		err = processFile(path, nil, os.Stdout)
 	}
 	if err != nil {
 		report(err)
@@ -136,7 +103,7 @@ func mdfmtMain() {
 	flag.Parse()
 
 	if flag.NArg() == 0 {
-		if err := processFile("<standard input>", os.Stdin, os.Stdout, true); err != nil {
+		if err := processFile("<standard input>", os.Stdin, os.Stdout); err != nil {
 			report(err)
 		}
 		return
@@ -150,7 +117,7 @@ func mdfmtMain() {
 		case dir.IsDir():
 			walkDir(path)
 		default:
-			if err := processFile(path, nil, os.Stdout, false); err != nil {
+			if err := processFile(path, nil, os.Stdout); err != nil {
 				report(err)
 			}
 		}
